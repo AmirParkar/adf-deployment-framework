@@ -7,24 +7,29 @@ import logging
 # arm_template_path = sys.argv[1]
 # arm_template_param_path = sys.argv[2]
 
-# with open(arm_template_path, 'r') as arm:
-#     arm_template = json.load(arm)
-
-# with open(arm_template_param_path, 'r') as arm_param:
-#     arm_param_temp
 
 
 
-def read_config(config_path):
-    with open(config_path, 'r') as file_content:
-        config_file = yaml.load(file_content)
-    print(config_file)
+pipeline = {"test":"test"}
+
+def read_config(file_path) -> dict:
+    """
+    Creating a different function to be able to read multiple
+    configurations in the future
 
     """
-    Read configuration and return a dictionary.
+    with open(file_path, 'r') as f:
+        file_content = yaml.safe_load(f)
+    # print(file_content)
+    return file_content
 
-    This function simply reads the yaml configuration file 
-    and returns a dictionary.
+
+def parse_config(config_path) -> str: 
+    """
+    Parse configuration and return a dictionary.
+
+    This function will parse the configuration file and
+    set the expectations for reforming the arm template.
 
     Parameters
     ----------
@@ -36,13 +41,49 @@ def read_config(config_path):
     dict
         The dictionary result from ``config_path``.
 
-    See Also
-    --------
-    subtract : Subtract one integer from another.
     """
+    config = read_config(config_path)
 
-#Read the configuration file 
-read_config("configuration/acceptance.yml")
+    components = config['components']
+    paramters = config['parameters']
+
+    # expression = config['components']['expression']
+    # pipeline = config['components']['pipeline']
+    # dataset = config['components']['dataset']
+    # trigger = config['components']['trigger']
+    # linkedservice = config['components']['linkedservice']
+    return components, paramters
+
+components, paramters = parse_config("configuration/acceptance.yml")
+
+print(components)
+
+
+def inclusion():
+    """
+    This is a future feature
+    """
+    pass
+
+def exclusion():
+    """
+    This function will regenerate the arm template by
+    excluding the components and resetting the parameters
+
+
+    """
+    arm_template = "Reformed Arm Template"
+
+
+    return arm_template    
+
+reform_type = {
+    'inclusion': inclusion,
+    'exclusion': exclusion
+    }
+
+reform_type['exclusion']()
+
 
 # Output file to location 
 # with open(arm_template_param_path, 'r') as arm_param:
