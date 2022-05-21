@@ -1,0 +1,162 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adventure-works-01"
+        },
+        "adv_wrks_strg_01_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'adv_wrks_strg_01'"
+        },
+        "SET_STARTTIME_ENDTIME_TRIGGER_properties_pipeline_parameters_starttime": {
+            "type": "string",
+            "defaultValue": "@trigger().outputs.WindowStartTime"
+        },
+        "SET_STARTTIME_ENDTIME_TRIGGER_properties_pipeline_parameters_endtime": {
+            "type": "string",
+            "defaultValue": "@trigger().outputs.WindowEndTime"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/SET_STARTTIME_ENDTIME')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Set variable",
+                        "type": "SetVariable",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "output",
+                            "value": {
+                                "value": "@concat('StartTime ->', pipeline().parameters.starttime,'Endtime -> ',pipeline().parameters.endtime)",
+                                "type": "Expression"
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "starttime": {
+                        "type": "string"
+                    },
+                    "endtime": {
+                        "type": "string"
+                    }
+                },
+                "variables": {
+                    "output": {
+                        "type": "String"
+                    }
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-04-25T19:57:39Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/adv_wrks_strg_01')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobStorage",
+                "typeProperties": {
+                    "connectionString": "[parameters('adv_wrks_strg_01_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SET_STARTTIME_ENDTIME_TRIGGER')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipeline": {
+                    "pipelineReference": {
+                        "referenceName": "SET_STARTTIME_ENDTIME",
+                        "type": "PipelineReference"
+                    },
+                    "parameters": {
+                        "starttime": "[parameters('SET_STARTTIME_ENDTIME_TRIGGER_properties_pipeline_parameters_starttime')]",
+                        "endtime": "[parameters('SET_STARTTIME_ENDTIME_TRIGGER_properties_pipeline_parameters_endtime')]"
+                    }
+                },
+                "type": "TumblingWindowTrigger",
+                "typeProperties": {
+                    "frequency": "Minute",
+                    "interval": 10,
+                    "startTime": "2022-04-25T19:00:00Z",
+                    "endTime": "2022-04-26T19:50:00Z",
+                    "delay": "00:00:00",
+                    "maxConcurrency": 50,
+                    "retryPolicy": {
+                        "intervalInSeconds": 30
+                    },
+                    "dependsOn": []
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/SET_STARTTIME_ENDTIME')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/pipeline_include')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Set variable1",
+                        "type": "SetVariable",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {}
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/pipeline_exclude')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Set variable1",
+                        "type": "SetVariable",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {}
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        }
+    ]
+}
