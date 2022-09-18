@@ -1,34 +1,18 @@
-
-#Start this with the following arguments
- 
-
-"""
-- Arm Template Path - Share the root folder to the arm templates 
-- Configuration - Ensure passing the correct name 
-"""
-
-import json
-
-def read_arm(arm_file_path):
-
-    arm_template_path = arm_file_path + "arm_template.json"
-    arm_template_param_path  = arm_file_path + "arm_template_parameters.json"
-
-    #Read Arm Template
-    with open(arm_template_path, 'r') as arm:
-        arm = json.load(arm)
-
-    #Read Arm Parameter Template
-    with open(arm_template_param_path, 'r') as arm_param:
-        arm_param = json.load(arm_param)
-
-    return arm, arm_param
+import utils
+import reform
 
 def main():
-    arm, arm_param = read_arm("arm-template/")
+    """
+    - Reading ARM File + Configuration file
+    """
+    arm, arm_param = utils.read_arm("arm-template/")
     print("Success in reading Arm")
-
-    
+    configuration = utils.read_config('configuration/acceptance.yml')
+    print('Success in reading config')
+    components, paramters = utils.parse_config(configuration)
+    print('Success in reading configuration components and Parameters')
+    arm, arm_param = reform.exclusion(arm, arm_param, components, paramters)
+    print(arm, arm_param)
 
 if __name__ == "__main__":
     main()
