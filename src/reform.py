@@ -1,3 +1,4 @@
+import resource
 import yaml
 import sys
 import logging
@@ -36,7 +37,22 @@ def exclusion(arm, arm_param, components, paramters):
     """
 
     #START WORKING ON REFORMING THE ARM TEMPLATE
+    exclusion_list = []
 
+    #Combining all the components to be excluded using from all components
+    for component in components:
+        for internal_component in components[component]:
+            exclusion_list.append(internal_component['name'])
+
+    for i in range(len(arm['resources'])-1,-1,-1):
+        resource = arm['resources'][i]
+        if any(provided in resource['name'] for provided in exclusion_list):
+            arm['resources'].pop(i)
+        else:
+            for j in range(len (resource['dependsOn']) -1,-1,-1) :
+                if any(provided in resource['dependsOn'][j] for provided in exclusion_list):
+                    resource['depends0n']. pop(j)
+    print(arm)
 
     arm = "Reformed Arm Template"
     arm_param = "Reformed Arm Parameter file "
