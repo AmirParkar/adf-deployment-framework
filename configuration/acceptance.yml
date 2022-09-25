@@ -1,0 +1,28 @@
+meta:
+    version: 0.1
+    environment: acceptance
+    description: This configuration file is for Acceptance Environment
+    owner:
+        - name: Amir Parkar
+          email: amir.parkar@abc.com
+
+components:
+    expression:
+        - name: "some_expression_here"
+
+    pipeline:
+        - name: pipeline_exclude
+        - name: someother-pipeline
+
+    dataset:
+        - name: dataset-name
+
+    trigger:
+        - name: trigger-name
+
+    linkedservice:
+        - name: linkedservice-name
+
+parameters:
+    - name: name-of-parameter from parameter file
+      value: target environment value
